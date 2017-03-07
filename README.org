@@ -1,0 +1,6 @@
+* B♭ Trumpet Transposition 
+
+This is a little tool I whipped up to help my son visualize the fingering on his
+trumpet when playing his scales. Band assignments are given in Concert pitch, so
+this tool also transposes to B♭ (major second).
+

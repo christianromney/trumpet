@@ -1,0 +1,3 @@
+{:require  [trumpet.app]
+ :init-fns [trumpet.app/init]
+ :compiler-options {:asset-path "js/app.out"}}

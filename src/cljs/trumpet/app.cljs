@@ -175,7 +175,8 @@
   []
   [:footer
    [:p (str "Copyright ©" (.getFullYear (js/Date.))  " Christian Romney and Sebastian Romney. ")
-    [:a {:href "https://opensource.org/licenses/MIT"} "MIT License."]]])
+    [:a {:href "https://opensource.org/licenses/MIT"} "MIT License."] " "
+    [:span "Source code available on " [:a {:href "https://github.com/christianromney/trumpet"} "Github."]]]])
 
 (defn Bb-transposition
   "This component renders a Bb transposed scale for

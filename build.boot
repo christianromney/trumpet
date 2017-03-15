@@ -36,7 +36,8 @@
 
         (dirac)
         (reload)
-        (build)))
+        (build)
+        (asset-fingerprint :skip true)))
 
 (deftask production []
   (task-options! cljs {:optimizations :advanced})

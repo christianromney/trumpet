@@ -8,7 +8,8 @@
 ;; -- application state --
 
 (def app-state
-  (atom {:current-key :Gmaj}))
+  (atom {:current-key :Gmaj
+         :octave 3}))
 
 ;; -- data --
 
@@ -122,6 +123,24 @@
      (map-indexed (partial key-name-select-option state)
                   (sort (keys Bb-transpositions))))]])
 
+(defn octave-select-option
+  "A dropdown box option for a given octave"
+  [state idx k]
+  ^{:key (str "octave-" idx)}
+  [:option {:value k} k])
+
+(defn octave-selector
+  "Component to select the note octave"
+  [state]
+  [:div.concert-pitch
+   [:h1 "Octave"]
+   [:select {:style {:font-size "1.2em"}
+             :value (:octave @state)
+             :onChange #(swap! state assoc :octave (js/parseInt (.. % -target -value)))}
+    (doall
+     (map-indexed (partial octave-select-option state)
+                  (range 0 9)))]])
+
 (defn transposed-pitch
   "Component that shows transposed pitch"
   [state]
@@ -130,10 +149,10 @@
      [:h1 "Transposed: " [:span transposed]]]))
 
 (defn note-cell
-  [idx note]
+  [state idx note]
   ^{:key (str "note-" idx)}
   [:th {:onClick (fn [e]
-                   (sound/play (sound/octave note 4)))
+                   (sound/play (sound/octave note (:octave @state))))
         :style {:text-align "center"
                 :font-weight "bold"
                 :padding "4px"
@@ -143,29 +162,29 @@
                 :border "1px solid #000"}} (notes note)])
 
 (defn note-row
-  [tonic]
+  [state tonic]
   [:tr
-   (doall (map-indexed note-cell (tonic scales)))])
+   (doall (map-indexed (partial note-cell state) (tonic scales)))])
 
 (defn finger-cell
-  [idx note]
+  [state idx note]
   ^{:key (str "fingering-" idx)}
   [:td {:style {:text-align "center"
                 :padding "12px 4px"
                 :width "12.5%"
                 :border "1px solid #000"}} (fingering note)])
 (defn finger-row
-  [tonic]
+  [state tonic]
   [:tr
-   (doall (map-indexed finger-cell (tonic scales)))])
+   (doall (map-indexed (partial finger-cell state) (tonic scales)))])
 
 (defn scale-table
   [state]
   (let [tonic (Bb-transpositions (:current-key @state))]
     [:table {:style {:width "100%" :font-size "1.2em"
                      :border-collapse "collapse"}}
-     [note-row tonic]
-     [finger-row tonic]]))
+     [note-row state tonic]
+     [finger-row state tonic]]))
 
 (defn title
   []
@@ -191,6 +210,7 @@
                               :font-family "Roboto, sans-serif"}}
    [title]
    [concert-pitch-key-selector app-state]
+   [octave-selector app-state]
    [transposed-pitch app-state]
    [scale-table app-state]
    [copyright]])

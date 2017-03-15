@@ -2,7 +2,7 @@
   (:require [tonejs]
             [cljs.pprint :refer [pprint]]))
 
-(defonce config
+(def config
   (clj->js
    {:oscillator {:type "pwm" :modulationFrequency 0.5}
     :envelope {:attack 2.0

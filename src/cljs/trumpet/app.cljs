@@ -1,15 +1,16 @@
 (ns trumpet.app
   (:require [reagent.core :as reagent :refer [atom]]
+            [trumpet.sound :as sound]
             [clojure.set :as cset]))
 
 (enable-console-print!)
 
-;; -- application state -- 
+;; -- application state --
 
 (def app-state
   (atom {:current-key :Gmaj}))
 
-;; -- data -- 
+;; -- data --
 
 (def Bb-transpositions
   "Key transpositions for Bb instruments (major second)"
@@ -73,14 +74,14 @@
    :A  "⚫⚫⚪"
    :A# "⚫⚪⚪"
    :Bb "⚫⚪⚪"
-   :B  "⚪⚫⚪"   
+   :B  "⚪⚫⚪"
    :C  "⚪⚪⚪"
    :C# "⚫⚫⚫"
    :Db "⚫⚫⚫"
    :D  "⚫⚪⚫"
    :D# "⚪⚫⚫"
    :Eb "⚪⚫⚫"
-   :E  "⚫⚫⚪"   
+   :E  "⚫⚫⚪"
    :F  "⚫⚪⚪"
    :F# "⚪⚫⚪"
    :Gb "⚪⚫⚪"
@@ -102,7 +103,7 @@
    :Gmaj  [:G :A :B :C :D :E :F# :G]
    :Abmaj [:Ab :Bb :C :Db :Eb :F :G :Ab]})
 
-;; -- components -- 
+;; -- components --
 (defn key-name-select-option
   "A dropdown box option for a particular musical key"
   [state idx k]
@@ -124,14 +125,15 @@
 (defn transposed-pitch
   "Component that shows transposed pitch"
   [state]
-  (let [transposed (key-names (Bb-transpositions (:current-key @state)))]    
+  (let [transposed (key-names (Bb-transpositions (:current-key @state)))]
     [:div.transposed
      [:h1 "Transposed: " [:span transposed]]]))
 
 (defn note-cell
   [idx note]
   ^{:key (str "note-" idx)}
-  [:th {:style {:text-align "center"
+  [:th {:onClick #(sound/play (sound/octave note 4))
+        :style {:text-align "center"
                 :font-weight "bold"
                 :padding "4px"
                 :background "#333"
@@ -192,7 +194,7 @@
    [scale-table app-state]
    [copyright]])
 
-;; -- entrypoint -- 
+;; -- entrypoint --
 
 (defn init []
   (reagent/render-component

@@ -132,7 +132,8 @@
 (defn note-cell
   [idx note]
   ^{:key (str "note-" idx)}
-  [:th {:onClick #(sound/play (sound/octave note 4))
+  [:th {:onClick (fn [e]
+                   (sound/play (sound/octave note 4)))
         :style {:text-align "center"
                 :font-weight "bold"
                 :padding "4px"

@@ -105,6 +105,17 @@
    :Abmaj [:Ab :Bb :C :Db :Eb :F :G :Ab]})
 
 ;; -- components --
+
+(defn- create-event-handler
+  "Accepts a state atom, a key and a function, and
+  returns a callback function that sets the given key
+  value in the state map after transforming the event
+  target value with the function."
+  [state k f]
+  (fn [event]
+    (let [value (.. event -target -value)]
+      (swap! state assoc k (f value)))))
+
 (defn key-name-select-option
   "A dropdown box option for a particular musical key"
   [state idx k]
@@ -118,7 +129,7 @@
    [:h1 "Concert Pitch"]
    [:select {:style {:font-size "1.2em"}
              :value (:current-key @state)
-             :onChange #(swap! state assoc :current-key (keyword (.. % -target -value)))}
+             :onChange (create-event-handler state :current-key keyword)}
     (doall
      (map-indexed (partial key-name-select-option state)
                   (sort (keys Bb-transpositions))))]])
@@ -136,7 +147,7 @@
    [:h1 "Octave"]
    [:select {:style {:font-size "1.2em"}
              :value (:octave @state)
-             :onChange #(swap! state assoc :octave (js/parseInt (.. % -target -value)))}
+             :onChange (create-event-handler state :octave js/parseInt)}
     (doall
      (map-indexed (partial octave-select-option state)
                   (range 0 9)))]])
@@ -151,8 +162,7 @@
 (defn note-cell
   [state idx note]
   ^{:key (str "note-" idx)}
-  [:th {:onClick (fn [e]
-                   (sound/play (sound/octave note (:octave @state))))
+  [:th {:onClick #(sound/play (sound/octave note (:octave @state)))
         :style {:text-align "center"
                 :font-weight "bold"
                 :padding "4px"

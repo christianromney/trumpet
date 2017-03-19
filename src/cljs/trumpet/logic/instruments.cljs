@@ -34,6 +34,25 @@
    "Soprano Sax"          +major-second
    })
 
+(def baritone-euphonium
+  {:Ab "⚫⚪⚪"
+    :A  "⚪⚫⚪"
+    :A# "⚪⚪⚪"
+    :Bb "⚪⚪⚪"
+    :B  "⚫⚫⚫"
+    :C  "⚫⚪⚫"
+    :C# "⚪⚫⚫"
+    :Db "⚪⚫⚫"
+    :D  "⚫⚫⚪"
+    :D# "⚫⚪⚪"
+    :Eb "⚫⚪⚪"
+    :E  "⚫⚫⚫"
+    :F  "⚫⚪⚫"
+    :F# "⚪⚫⚫"
+    :Gb "⚪⚫⚫"
+    :G  "⚫⚫⚪"
+    :G# "⚫⚪⚪"})
+
 (def fingering
   {"B♭ Trumpet"
    {:Ab "⚪⚫⚫"
@@ -52,4 +71,8 @@
     :F# "⚪⚫⚪"
     :Gb "⚪⚫⚪"
     :G  "⚪⚪⚪"
-    :G# "⚪⚫⚫"}})
+    :G# "⚪⚫⚫"}
+   "Baritone"
+   baritone-euphonium
+   "Euphonium"
+   baritone-euphonium})

@@ -101,9 +101,15 @@
   [state idx note]
   ^{:key (str "fingering-" idx)}
   [:td.text-center
-   (get-in instrument/fingering
-           [(:instrument @state)
-            (scales/octave-note->note note)])])
+   (let [fingers (get-in instrument/fingering
+                         [(:instrument @state)
+                          (scales/octave-note->note note)])]
+     [:ul.list-unstyled
+      (doall
+       (map-indexed
+        (fn [idx finger]
+          ^{:key (str "finger-" idx)}
+          [:li finger]) fingers))])])
 
 (defn finger-row
   "Renders the row in the scale table that displays instrument fingerings."

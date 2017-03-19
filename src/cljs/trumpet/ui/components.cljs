@@ -14,19 +14,22 @@
   instrument. Changing the current instrument will update
   the application state with the correct transposition."
   [state]
-  [:select {:value (:instrument @state)
-            :on-change
-            (fn [e]
-              (let [selected (.. e -target -value)]
-                (swap! state assoc
-                       :instrument selected
-                       :transposition (get instrument/transpositions selected))))}
-   (doall
-    (map-indexed
-     (fn [idx [instrument transposition]]
-       ^{:key (str "instrument-" idx)}
-       [:option {:value instrument}
-        instrument]) instrument/transpositions))])
+  [:div#instrument.form-group
+   [:label.control-label {:for "select-instrument"} "Instrument: "]
+   [:select.form-control {:id "select-instrument"
+             :value (:instrument @state)
+             :on-change
+             (fn [e]
+               (let [selected (.. e -target -value)]
+                 (swap! state assoc
+                        :instrument selected
+                        :transposition (get instrument/transpositions selected))))}
+    (doall
+     (map-indexed
+      (fn [idx [instrument transposition]]
+        ^{:key (str "instrument-" idx)}
+        [:option {:value instrument}
+         instrument]) instrument/transpositions))]])
 
 (defn scale-selector
   "Component to select a major or minor scale to render."
@@ -43,28 +46,34 @@
                        (into [separator])
                        min-scale-fn)]
 
-    [:select {:value (:scale @state)
-              :on-change (fn [e]
-                           (let [selected (.. e -target -value)]
-                             (when-not (= selected separator)
-                               (swap! state assoc :scale selected))))}
-     (doall
-      (map-indexed
-       (fn [idx scale-name]
-         (let [opts (if (= separator scale-name) {:disabled true} {})]
-           ^{:key (str "scale-option-" idx)}
-           [:option (merge opts {:value scale-name}) scale-name])) scale-list))]))
+    [:div.scale.form-group
+     [:label.control-label {:for "select-scale"} "Scale: "]
+     [:select.form-control {:id "select-scale"
+               :value (:scale @state)
+               :on-change (fn [e]
+                            (let [selected (.. e -target -value)]
+                              (when-not (= selected separator)
+                                (swap! state assoc :scale selected))))}
+      (doall
+       (map-indexed
+        (fn [idx scale-name]
+          (let [opts (if (= separator scale-name) {:disabled true} {})]
+            ^{:key (str "scale-option-" idx)}
+            [:option (merge opts {:value scale-name}) scale-name])) scale-list))]]))
 
 (defn octave-selector
   "Component to select in which octave the notes should be played."
   [state]
-  [:select {:value (:octave @state)
-            :on-change #(swap! state assoc :octave (js/parseInt (.. % -target -value)))}
-   (doall
-    (map
-     (fn [octave]
-       ^{:key (str "octave-" octave)}
-       [:option octave]) (range scales/octaves)))])
+  [:div.octave.form-group
+   [:label.control-label {:for "select-octave"} "Octave: "]
+   [:select.form-control {:id "select-octave"
+             :value (:octave @state)
+             :on-change #(swap! state assoc :octave (js/parseInt (.. % -target -value)))}
+    (doall
+     (map
+      (fn [octave]
+        ^{:key (str "octave-" octave)}
+        [:option octave]) (range scales/octaves)))]])
 
 (defn note-cell
   "Component which renders a single note in the scale table display.
@@ -72,14 +81,11 @@
   HTML5 Audio."
   [state idx note]
   ^{:key (str "note-" idx)}
-  [:th {:on-click #(sounds/play (name note))
-        :style {:text-align "center"
-                :font-weight "bold"
-                :padding "4px"
-                :background "#333"
-                :color "#efefef"
-                :width "12.5%"
-                :border "1px solid #000"}} (scales/octave-note->note note)])
+  [:th.text-center {:on-click #(sounds/play (name note))
+                    :style {:padding "4px"}}
+   [:strong {:style {:font-weight "bold"
+                     :font-size "1.1em"}}
+    (scales/octave-note->note note)]])
 
 (defn note-row
   "Renders the row in the scale table that displays the note names."
@@ -94,10 +100,7 @@
   available."
   [state idx note]
   ^{:key (str "fingering-" idx)}
-  [:td {:style {:text-align "center"
-                :padding "12px 4px"
-                :width "12.5%"
-                :border "1px solid #000"}}
+  [:td.text-center
    (get-in instrument/fingering
            [(:instrument @state)
             (scales/octave-note->note note)])])
@@ -118,39 +121,66 @@
         scale-type (keyword (.substring scale+type type-idx))
         scale-fn   (scales/scale-type->fn scale-type)
         note-seq   (scale-fn scale (:octave @state) (:transposition @state))]
-    [:table {:style {:width "100%" :font-size "1.2em"
-                     :border-collapse "collapse"}}
-     [:tbody
-      [note-row state note-seq]
-      [finger-row state note-seq]]]))
+    [:div.panel.panel-default
+     [:div.panel-heading
+      [:strong {:style {:font-size "1.2em"}}
+       (str (name (scales/octave-note->note (first note-seq)))
+            (name scale-type) " Scale ")]
+      (when-not (zero? (:transposition @state))
+        [:span "(transposed)"])]
+     [:div.panel-body
+      "Click on the name of any note below to hear it played."
+      [:div.table-responsive {:style {:margin-top "1em"}}
+       [:table.table.table-striped.table-bordered
+        [:tbody
+         [note-row state note-seq]
+         [finger-row state note-seq]]]]]]))
 
 (defn application-header
   "Renders the title of the application"
   [state]
-  [:h1.title {:style {:padding "10px"
-                       :font-size "2.5em"
-                       :font-weight "bold"
-                      :border-bottom "1px solid #ccc"}}
+  [:div.page-header]
+  [:h1.title
    [:span "Scale, Transposition, and Fingering Chart"]])
 
 (defn application-footer
   "Renders the application copyright notice."
   [state]
   [:footer
-   [:p (str "Copyright ©" (.getFullYear (js/Date.))  " Christian Romney and Sebastian Romney. ")
+   [:p.text-center (str "Copyright ©" (.getFullYear (js/Date.))  " Christian Romney and Sebastian Romney. ")
     [:a {:href "https://opensource.org/licenses/MIT"} "MIT License."] " "
     [:span "Source code available on " [:a {:href "https://github.com/christianromney/trumpet"} "Github."]]]])
+
+(defn toolbar
+  "The toolbar contains the controls that allow the user to change selections."
+  [state]
+  [:div.panel.panel-default
+   [:div.panel-title
+    ""]
+   [:div.panel-body
+    [:div#toolbar.row.form-inline
+     [:div.col-md-2
+      [instrument-selector state]]
+     [:div.col-md-1
+      [scale-selector state]]
+     [:div.col-md-9
+      [octave-selector state]]]]])
+
+(defn transposition-alert
+  "Displays an alert that the currently selected instrument is a transposing instrument."
+  [state]
+  [:div.transposition.row
+   [:div.col-md-12
+    (when-not (zero? (:transposition @state))
+      [:div.alert.alert-info.text-center {:role "alert"}
+       (str "The " (:instrument @state) " is a transposing instrument.")])]])
 
 (defn main
   "This component renders all of the application's tools."
   [state]
-  [:div.key-selector {:style {:width "80%"
-                              :margin "0 auto"
-                              :padding "1em"
-                              :font-family "Roboto, sans-serif"}}
+  [:div.main {:style {:font-family "Roboto, sans-serif"}}
    [application-header state]
-   [instrument-selector state]
-   [scale-selector state]
-   [octave-selector state]
+   [toolbar state]
+   [transposition-alert state]
    [scale-table state]
    [application-footer state]])

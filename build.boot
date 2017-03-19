@@ -32,7 +32,7 @@
 (deftask run []
   (comp (serve)
         (watch)
-        (cljs-repl-env)
+        (cljs-repl)
 
         (dirac)
         (reload)
@@ -44,8 +44,9 @@
   identity)
 
 (deftask development []
-  (task-options! cljs {:optimizations :none}
-                 reload {:on-jsload 'trumpet.app/init})
+  (task-options! cljs   {:optimizations :none}
+                 reload {:on-jsload 'trumpet.app/init}
+                 repl   {:middleware '[cemerick.piggieback/wrap-cljs-repl]})
   identity)
 
 (deftask dev

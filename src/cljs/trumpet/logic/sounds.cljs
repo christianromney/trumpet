@@ -1,6 +1,7 @@
-(ns trumpet.sound
-  (:require [tonejs]
-            [cljs.pprint :refer [pprint]]))
+(ns trumpet.logic.sounds
+  "This namespace contains routines that enable the playback of sound using the
+  HTML5 Audio API via Tonejs."
+  (:require [tonejs]))
 
 (defonce wahwah
   (.toMaster (js/Tone.AutoWah. 58.27 6 -30)))
@@ -26,12 +27,4 @@
    (play octave-note (duration :quarter-note)))
 
   ([octave-note time]
-   (js/console.log "play: " (clj->js [octave-note time]))
    (.triggerAttackRelease output octave-note time)))
-
-(defn octave
-  "Converts a keyword note and integer octave into
-  a string that is understood by the synthesizer.
-  (octave :A 4) => 'A4'"
-  [note n]
-  (str (name note) n))

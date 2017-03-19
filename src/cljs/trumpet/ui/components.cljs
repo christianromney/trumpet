@@ -115,7 +115,11 @@
   "Renders the row in the scale table that displays instrument fingerings."
   [state note-seq]
   [:tr
-   (doall (map-indexed (partial finger-cell state) note-seq))])
+   (let [current-instrument (:instrument @state)]
+     (if (get instrument/fingering current-instrument)
+       (doall (map-indexed (partial finger-cell state) note-seq))
+       [:td.text-center {:colSpan 8}
+        (str "Fingering chart not yet available for " current-instrument)]))])
 
 (defn scale-table
   "Renders a table containing the notes and fingerings for the currently selected

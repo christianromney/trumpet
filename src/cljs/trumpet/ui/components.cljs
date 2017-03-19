@@ -139,9 +139,9 @@
 (defn application-header
   "Renders the title of the application"
   [state]
-  [:div.page-header]
-  [:h1.title
-   [:span "Scale, Transposition, and Fingering Chart"]])
+  [:div.page-header
+   [:h1.title
+    [:span "Scale, Transposition, and Fingering Chart"]]])
 
 (defn application-footer
   "Renders the application copyright notice."
